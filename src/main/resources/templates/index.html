@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ToDo List</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+    <div class="row">
+        <table class="table">
+        <thead>
+        <tr>
+            <th scope="col">Description</th>
+            <th scope="col">Time created</th>
+            <th scope="col">Status</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="task : ${tasks}">
+            <th scope="row">
+                <a th:href="@{/task/{id}(id=${task.getId})}" th:text="${task.getDescription()}"></a>
+            </th>
+            <td th:text="${#temporals.format(task.getCreated(), 'dd MMM yyyy HH-mm')}"></td>
+            <td th:if="${task.isDone()}">Done!</td>
+            <td th:unless="${task.isDone()}">New</td>
+        </tr>
+        </tbody>
+    </table><div/>
+    </div>
+    <div class="row">
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+            Add a new task
+        </button>
+    </div>
+    <div class="row mt-5">
+        <div class="btn-group" role="group" aria-label="Basic example">
+            <a th:href="@{/index}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button" aria-disabled="true">All</a>
+            <a th:href="@{/index(select='done')}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button" aria-disabled="true">Done</a>
+            <a th:href="@{/index(select='new')}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button" aria-disabled="true">New</a>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title mx-auto" id="staticBackdropLabel">New task</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form th:action="@{/add}" method="POST" id="add">
+                    <div class="mb-3">
+                        <textarea class="form-control" name="newTask" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-primary" form="add">Save</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha384-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+</body>
+</html>
