@@ -2,11 +2,13 @@ package ru.job4j.todo.store;
 
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 
 import java.util.List;
+import java.util.function.Function;
 
 @Repository
 public class TaskStore {
@@ -17,90 +19,79 @@ public class TaskStore {
         this.sf = sf;
     }
 
+    private <T> T tx(final Function<Session, T> command) {
+        final Session session = sf.openSession();
+        final Transaction tx = session.beginTransaction();
+        try {
+            T rsl = command.apply(session);
+            tx.commit();
+            return rsl;
+        } catch (final Exception e) {
+            session.getTransaction().rollback();
+            throw e;
+        } finally {
+            session.close();
+        }
+    }
+
     public List<Task> findAll() {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        Query query = session.createQuery("From Task");
-        session.getTransaction().commit();
-        List<Task> rsl = query.list();
-        session.close();
-        return rsl;
+        return this.tx(session -> session.createQuery("From Task").list());
     }
 
     public List<Task> findByParam(Boolean param) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        Query query = session.createQuery("From Task t where t.done = :param");
-        query.setParameter("param", param);
-        session.getTransaction().commit();
-        List<Task> rsl = query.list();
-        session.close();
-        return rsl;
+        return this.tx(session -> {
+            final Query query = session.createQuery("From Task t where t.done = :param");
+            query.setParameter("param", param);
+            return query.list();
+        });
     }
 
     public Task findById(int id) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        Query query = session.createQuery("From Task t where t.id = :id");
-        query.setParameter("id", id);
-        session.getTransaction().commit();
-        Task rsl = (Task) query.uniqueResult();
-        session.close();
-        return rsl;
+        return this.tx(session -> {
+            final Query query = session.createQuery("From Task t where t.id = :id");
+            query.setParameter("id", id);
+            return (Task) query.uniqueResult();
+        });
     }
 
     public Task add(Task task) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        try {
+        return this.tx(session -> {
             int id = (int) session.save(task);
             task.setId(id);
-            session.getTransaction().commit();
-            session.close();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        return task;
+            return task;
+        });
     }
 
     public boolean replace(int id, Task task) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        int rsl =
-                session.createQuery("update Task i set i.description = :newDescription, i.created = :newCreated, "
-                                + "i.done = :newDone where i.id = :fId")
+        return this.tx(session -> {
+            int rsl =
+                session.createQuery("update Task t set t.description = :newDescription, t.created = :newCreated, "
+                                + "t.done = :newDone where t.id = :fId")
                         .setParameter("newDescription", task.getDescription())
                         .setParameter("newCreated", task.getCreated())
                         .setParameter("newDone", task.isDone())
                         .setParameter("fId", id)
                         .executeUpdate();
-        System.out.println(rsl);
-        session.getTransaction().commit();
-        session.close();
-        return rsl > 0;
+            return rsl > 0;
+        });
     }
 
     public boolean delete(int id) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        int rsl = session.createQuery("delete from Task t where t.id = :fId")
+        return this.tx(session -> {
+            int rsl = session.createQuery("delete from Task t where t.id = :fId")
                 .setParameter("fId", id)
                 .executeUpdate();
-        session.getTransaction().commit();
-        session.close();
-        return rsl > 0;
+            return rsl > 0;
+        });
     }
 
     public boolean changeStatus(int id, boolean done) {
-        Session session = sf.openSession();
-        session.beginTransaction();
-        int rsl = session.createQuery("update Task t set t.done = :newDone where t.id = :fId")
+        return this.tx(session -> {
+            int rsl = session.createQuery("update Task t set t.done = :newDone where t.id = :fId")
                         .setParameter("newDone", !done)
                         .setParameter("fId", id)
                         .executeUpdate();
-        session.getTransaction().commit();
-        session.close();
-        return rsl > 0;
+            return rsl > 0;
+        });
     }
 }

@@ -9,7 +9,7 @@
 <body>
 <div class="container">
     <div class="row">
-        <table class="table">
+        <table class="table align-middle">
         <thead>
         <tr>
             <th scope="col">Description</th>
@@ -18,16 +18,16 @@
         </tr>
         </thead>
         <tbody>
-        <tr th:each="task : ${tasks}">
-            <th scope="row">
+        <tr class="col-md-6" th:each="task : ${tasks}">
+            <th class="overflow-auto">
                 <a th:href="@{/task/{id}(id=${task.getId})}" th:text="${task.getDescription()}"></a>
             </th>
-            <td th:text="${#temporals.format(task.getCreated(), 'dd MMM yyyy HH-mm')}"></td>
-            <td th:if="${task.isDone()}">Done!</td>
-            <td th:unless="${task.isDone()}">New</td>
+            <td class="col-md-3" th:text="${#temporals.format(task.getCreated(), 'dd MMM yyyy HH-mm')}"></td>
+            <td class="col-md-3" th:if="${task.isDone()}">Done!</td>
+            <td class="col-md-3" th:unless="${task.isDone()}">New</td>
         </tr>
         </tbody>
-    </table><div/>
+    </table>
     </div>
     <div class="row">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
