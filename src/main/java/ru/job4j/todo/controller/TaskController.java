@@ -38,9 +38,6 @@ public class TaskController {
     @PostMapping("/add")
     public String add(HttpServletRequest req) {
         String description = req.getParameter("newTask");
-        if ("".equals(description)) {
-            return "redirect:/index";
-        }
         Task task = Task.of(description);
         taskService.add(task);
         return "redirect:/index";

@@ -44,7 +44,8 @@
                     <input type="hidden" name="id" th:value="*{id}">
                     <input type="hidden" name="created" th:value="*{created}">
                     <div class="mb-3">
-                        <textarea class="form-control" name="description" rows="3" th:text="*{description}"></textarea>
+                        <textarea class="form-control" name="description" rows="3" th:text="*{description}" required>
+                        </textarea>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" name="done" th:checked="*{done}" id="done">
