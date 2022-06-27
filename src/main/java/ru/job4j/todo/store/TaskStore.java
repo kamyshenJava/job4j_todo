@@ -34,14 +34,19 @@ public class TaskStore {
         }
     }
 
-    public List<Task> findAll() {
-        return this.tx(session -> session.createQuery("From Task").list());
+    public List<Task> findAll(int id) {
+        return this.tx(session -> {
+            final Query query =  session.createQuery("From Task t where t.user.id = :id");
+            query.setParameter("id", id);
+            return query.list();
+        });
     }
 
-    public List<Task> findByParam(Boolean param) {
+    public List<Task> findByParamAndUserId(Boolean param, int id) {
         return this.tx(session -> {
-            final Query query = session.createQuery("From Task t where t.done = :param");
+            final Query query = session.createQuery("From Task t where t.done = :param and t.user.id = :id");
             query.setParameter("param", param);
+            query.setParameter("id", id);
             return query.list();
         });
     }

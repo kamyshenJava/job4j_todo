@@ -8,7 +8,30 @@
 </head>
 <body>
 <div class="container">
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <div class="container">
+            <a class="navbar-brand me-2" th:href="@{/index}">
+                Tasks
+            </a>
+            <div class="d-flex justify-content-end" id="navbarButtonsExample">
+                <div class="d-flex align-items-center">
+                    <a class="btn btn-link text-decoration-none px-3 me-2" th:href="@{/login}"
+                       th:if="${user.name == 'guest'}">
+                        Login
+                    </a>
+                    <a class="btn btn-primary me-3" th:href="@{/signup}" th:if="${user.name == 'guest'}">
+                        Signup
+                    </a>
+                    <a class="nav-link" th:unless="${user.name == 'guest'}" th:href="@{/logout}">
+                        <span th:text="${user.name}"></span>
+                        <span>| Log out</span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </nav>
     <div class="row">
+        <div class="table-responsive">
         <table class="table align-middle">
         <thead>
         <tr>
@@ -20,7 +43,9 @@
         <tbody>
         <tr class="col-md-6" th:each="task : ${tasks}">
             <th class="overflow-auto">
-                <a th:href="@{/task/{id}(id=${task.getId})}" th:text="${task.getDescription()}"></a>
+                <a th:unless="${user.name == 'guest'}" th:href="@{/task/{id}(id=${task.getId})}"
+                   th:text="${task.getDescription()}"></a>
+                <a th:if="${user.name == 'guest'}" th:text="${task.getDescription()}"></a>
             </th>
             <td class="col-md-3" th:text="${#temporals.format(task.getCreated(), 'dd MMM yyyy HH-mm')}"></td>
             <td class="col-md-3" th:if="${task.isDone()}">Done!</td>
@@ -28,21 +53,26 @@
         </tr>
         </tbody>
     </table>
+        </div>
     </div>
-    <div class="row">
+    <div class="row" th:unless="${user.name == 'guest'}">
         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
             Add a new task
         </button>
     </div>
-    <div class="row mt-5">
+    <div class="row mt-5" th:unless="${user.name == 'guest'}">
         <div class="btn-group" role="group" aria-label="Basic example">
-            <a th:href="@{/index}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button" aria-disabled="true">All</a>
-            <a th:href="@{/index(select='done')}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button" aria-disabled="true">Done</a>
-            <a th:href="@{/index(select='new')}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button" aria-disabled="true">New</a>
+            <a th:href="@{/index}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button"
+               aria-disabled="true">All</a>
+            <a th:href="@{/index(select='done')}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button"
+               aria-disabled="true">Done</a>
+            <a th:href="@{/index(select='new')}" class="btn btn-outline-primary btn-lg" tabindex="-1" role="button"
+               aria-disabled="true">New</a>
         </div>
     </div>
 </div>
-<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+     aria-labelledby="staticBackdropLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -52,7 +82,8 @@
             <div class="modal-body">
                 <form th:action="@{/add}" method="POST" id="add">
                     <div class="mb-3">
-                        <textarea class="form-control" name="newTask" rows="3" required></textarea>
+                        <input type="text" maxlength="100" class="form-control" name="newTask"
+                               placeholder="Your new task..." required>
                     </div>
                 </form>
             </div>
@@ -60,7 +91,6 @@
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                 <button type="submit" class="btn btn-primary" form="add">Save</button>
             </div>
-
         </div>
     </div>
 </div>

@@ -17,26 +17,26 @@ public class Task {
     private LocalDateTime created;
     private boolean done;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
+
     public Task() {
     }
 
-    public Task(String description) {
-        this.description = description;
-        this.created = LocalDateTime.now();
-        this.done = false;
-    }
-
-    public Task(String description, LocalDateTime created, boolean done) {
+    public Task(String description, LocalDateTime created, boolean done, User user) {
         this.description = description;
         this.created = created;
         this.done = done;
+        this.user = user;
     }
 
-    public static Task of(String description) {
+    public static Task of(String description, User user) {
         Task task = new Task();
         task.description = description;
         task.created = LocalDateTime.now();
         task.done = false;
+        task.user = user;
         return task;
     }
 
@@ -72,6 +72,14 @@ public class Task {
         this.done = done;
     }
 
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -91,8 +99,7 @@ public class Task {
 
     @Override
     public String toString() {
-        return "Task{"
-                + "id=" + id + ", description='" + description + '\'' + ", created=" + created.format(FORMATTER)
-                + ", done=" + done + '}';
+        return "Task{id=" + id + ", description='" + description + '\'' + ", created=" + created + ", done=" + done
+                + ", user=" + user + '}';
     }
 }

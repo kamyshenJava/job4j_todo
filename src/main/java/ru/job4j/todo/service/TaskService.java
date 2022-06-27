@@ -14,12 +14,12 @@ public class TaskService {
         this.taskStore = taskStore;
     }
 
-    public List<Task> findAll() {
-        return taskStore.findAll();
+    public List<Task> findAll(int id) {
+        return taskStore.findAll(id);
     }
 
-    public List<Task> findByParam(Boolean param) {
-        return taskStore.findByParam(param);
+    public List<Task> findByParamAndUserId(Boolean param, int id) {
+        return taskStore.findByParamAndUserId(param, id);
     }
 
     public Task findById(int id) {
