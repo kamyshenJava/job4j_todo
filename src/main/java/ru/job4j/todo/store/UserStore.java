@@ -29,10 +29,11 @@ public class UserStore {
 
     public Optional<User> findUserByNameAndPassword(String name, String password) {
         return tx(session -> {
-            final Query query = session.createQuery("From User u where u.name = :name and u.password = :password");
+            final Query<User> query
+                    = session.createQuery("From User u where u.name = :name and u.password = :password");
             query.setParameter("name", name);
             query.setParameter("password", password);
-            return Optional.ofNullable((User) query.uniqueResult());
+            return query.uniqueResultOptional();
         });
     }
 
