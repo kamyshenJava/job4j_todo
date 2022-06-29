@@ -1,17 +1,15 @@
 package ru.job4j.todo.store;
 
-import org.hibernate.Session;
+import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.User;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 @Repository
-public class UserStore {
+public class UserStore implements DefaultQuery {
 
     private final SessionFactory sf;
 
@@ -20,11 +18,15 @@ public class UserStore {
     }
 
     public Optional<User> add(User user) {
-        return tx(session -> {
-            int id = (int) session.save(user);
-            user.setId(id);
-            return Optional.ofNullable(user);
-        });
+        try {
+            return tx(session -> {
+                int id = (int) session.save(user);
+                user.setId(id);
+                return Optional.of(user);
+            }, sf);
+        } catch (HibernateException e) {
+            return Optional.empty();
+        }
     }
 
     public Optional<User> findUserByNameAndPassword(String name, String password) {
@@ -34,20 +36,6 @@ public class UserStore {
             query.setParameter("name", name);
             query.setParameter("password", password);
             return query.uniqueResultOptional();
-        });
-    }
-
-    private Optional<User> tx(final Function<Session, Optional<User>> command) {
-        final Session session = sf.openSession();
-        final Transaction tx = session.beginTransaction();
-        try {
-            Optional<User> rsl = command.apply(session);
-            tx.commit();
-            return rsl;
-        } catch (final Exception e) {
-            return Optional.empty();
-        } finally {
-            session.close();
-        }
+        }, sf);
     }
 }

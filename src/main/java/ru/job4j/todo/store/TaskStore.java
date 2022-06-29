@@ -1,17 +1,14 @@
 package ru.job4j.todo.store;
 
-import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
 
 import java.util.List;
-import java.util.function.Function;
 
 @Repository
-public class TaskStore {
+public class TaskStore implements DefaultQuery {
 
     private final SessionFactory sf;
 
@@ -19,27 +16,12 @@ public class TaskStore {
         this.sf = sf;
     }
 
-    private <T> T tx(final Function<Session, T> command) {
-        final Session session = sf.openSession();
-        final Transaction tx = session.beginTransaction();
-        try {
-            T rsl = command.apply(session);
-            tx.commit();
-            return rsl;
-        } catch (final Exception e) {
-            session.getTransaction().rollback();
-            throw e;
-        } finally {
-            session.close();
-        }
-    }
-
     public List<Task> findAll(int id) {
         return this.tx(session -> {
             final Query query =  session.createQuery("From Task t where t.user.id = :id");
             query.setParameter("id", id);
             return query.list();
-        });
+        }, sf);
     }
 
     public List<Task> findByParamAndUserId(Boolean param, int id) {
@@ -48,7 +30,7 @@ public class TaskStore {
             query.setParameter("param", param);
             query.setParameter("id", id);
             return query.list();
-        });
+        }, sf);
     }
 
     public Task findById(int id) {
@@ -56,7 +38,7 @@ public class TaskStore {
             final Query query = session.createQuery("From Task t where t.id = :id");
             query.setParameter("id", id);
             return (Task) query.uniqueResult();
-        });
+        }, sf);
     }
 
     public Task add(Task task) {
@@ -64,7 +46,7 @@ public class TaskStore {
             int id = (int) session.save(task);
             task.setId(id);
             return task;
-        });
+        }, sf);
     }
 
     public boolean replace(int id, Task task) {
@@ -78,7 +60,7 @@ public class TaskStore {
                         .setParameter("fId", id)
                         .executeUpdate();
             return rsl > 0;
-        });
+        }, sf);
     }
 
     public boolean delete(int id) {
@@ -87,7 +69,7 @@ public class TaskStore {
                 .setParameter("fId", id)
                 .executeUpdate();
             return rsl > 0;
-        });
+        }, sf);
     }
 
     public boolean changeStatus(int id, boolean done) {
@@ -97,6 +79,6 @@ public class TaskStore {
                         .setParameter("fId", id)
                         .executeUpdate();
             return rsl > 0;
-        });
+        }, sf);
     }
 }
