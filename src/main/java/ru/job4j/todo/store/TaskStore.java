@@ -18,7 +18,8 @@ public class TaskStore implements DefaultQuery {
 
     public List<Task> findAll(int id) {
         return this.tx(session -> {
-            final Query query =  session.createQuery("From Task t where t.user.id = :id");
+            final Query query =  session.createQuery("select distinct t from Task t left join fetch t.categories "
+                    + "where t.user.id = :id order by t.created");
             query.setParameter("id", id);
             return query.list();
         }, sf);
@@ -26,7 +27,8 @@ public class TaskStore implements DefaultQuery {
 
     public List<Task> findByParamAndUserId(Boolean param, int id) {
         return this.tx(session -> {
-            final Query query = session.createQuery("From Task t where t.done = :param and t.user.id = :id");
+            final Query query = session.createQuery("select distinct t From Task t left join fetch t.categories "
+                    + "where t.done = :param and t.user.id = :id order by t.created");
             query.setParameter("param", param);
             query.setParameter("id", id);
             return query.list();
@@ -35,7 +37,8 @@ public class TaskStore implements DefaultQuery {
 
     public Task findById(int id) {
         return this.tx(session -> {
-            final Query query = session.createQuery("From Task t where t.id = :id");
+            final Query query = session.createQuery("select distinct t From Task t left join fetch t.categories "
+                    + "where t.id = :id");
             query.setParameter("id", id);
             return (Task) query.uniqueResult();
         }, sf);
@@ -49,17 +52,10 @@ public class TaskStore implements DefaultQuery {
         }, sf);
     }
 
-    public boolean replace(int id, Task task) {
-        return this.tx(session -> {
-            int rsl =
-                session.createQuery("update Task t set t.description = :newDescription, t.created = :newCreated, "
-                                + "t.done = :newDone where t.id = :fId")
-                        .setParameter("newDescription", task.getDescription())
-                        .setParameter("newCreated", task.getCreated())
-                        .setParameter("newDone", task.isDone())
-                        .setParameter("fId", id)
-                        .executeUpdate();
-            return rsl > 0;
+    public void replace(Task task) {
+        this.tx(session -> {
+            session.update(task);
+            return null;
         }, sf);
     }
 

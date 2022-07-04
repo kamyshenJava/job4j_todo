@@ -73,8 +73,6 @@ public class UserController {
 
     @PostMapping("/login")
     public String login(@ModelAttribute User user, HttpServletRequest req) {
-        System.out.println(user.getName());
-        System.out.println(user.getPassword());
         Optional<User> regUser = userService.findUserByNameAndPassword(user.getName(), user.getPassword());
         if (regUser.isEmpty()) {
             return "redirect:/fail/login";

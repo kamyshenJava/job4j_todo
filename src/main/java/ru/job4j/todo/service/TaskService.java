@@ -38,7 +38,7 @@ public class TaskService {
         return taskStore.delete(id);
     }
 
-    public boolean replace(int id, Task task) {
-        return taskStore.replace(id, task);
+    public void replace(Task task) {
+        taskStore.replace(task);
     }
 }

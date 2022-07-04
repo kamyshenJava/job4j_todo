@@ -4,25 +4,24 @@ import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "users")
-public class User {
-
+@Table(name = "categories")
+public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-
     private String name;
 
-    private String password;
-
-    public User() {
+    public Category() {
     }
 
-    public static User of(String name, String password) {
-        User user = new User();
-        user.name = name;
-        user.password = password;
-        return user;
+    public Category(String name) {
+        this.name = name;
+    }
+
+    public static Category of(String id) {
+        Category category = new Category();
+        category.id = Integer.parseInt(id);
+        return category;
     }
 
     public int getId() {
@@ -41,14 +40,6 @@ public class User {
         this.name = name;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -57,8 +48,8 @@ public class User {
         if (o == null || getClass() != o.getClass()) {
             return false;
         }
-        User user = (User) o;
-        return id == user.id && Objects.equals(name, user.name);
+        Category category = (Category) o;
+        return id == category.id && Objects.equals(name, category.name);
     }
 
     @Override
@@ -66,4 +57,8 @@ public class User {
         return Objects.hash(id, name);
     }
 
+    @Override
+    public String toString() {
+        return name;
+    }
 }

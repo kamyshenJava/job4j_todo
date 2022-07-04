@@ -3,6 +3,7 @@ package ru.job4j.todo.model;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -16,6 +17,9 @@ public class Task {
     private String description;
     private LocalDateTime created;
     private boolean done;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Category> categories;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
@@ -31,12 +35,12 @@ public class Task {
         this.user = user;
     }
 
-    public static Task of(String description, User user) {
+    public static Task of(String description, List<Category> categories) {
         Task task = new Task();
         task.description = description;
         task.created = LocalDateTime.now();
         task.done = false;
-        task.user = user;
+        task.categories = categories;
         return task;
     }
 
@@ -80,6 +84,14 @@ public class Task {
         this.user = user;
     }
 
+    public List<Category> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -97,9 +109,4 @@ public class Task {
         return Objects.hash(id);
     }
 
-    @Override
-    public String toString() {
-        return "Task{id=" + id + ", description='" + description + '\'' + ", created=" + created + ", done=" + done
-                + ", user=" + user + '}';
-    }
 }

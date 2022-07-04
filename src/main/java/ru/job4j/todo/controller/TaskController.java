@@ -3,8 +3,10 @@ package ru.job4j.todo.controller;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.TaskService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -16,9 +18,11 @@ import java.util.List;
 @Controller
 public class TaskController {
     private final TaskService taskService;
+    private final CategoryService categoryService;
 
-    public TaskController(TaskService taskService) {
+    public TaskController(TaskService taskService, CategoryService categoryService) {
         this.taskService = taskService;
+        this.categoryService = categoryService;
     }
 
     @GetMapping("/index")
@@ -36,20 +40,25 @@ public class TaskController {
                 default: tasks = taskService.findAll(id);
             }
         } else {
-            Task task1 = Task.of("This is an example of a task", new User());
-            Task task2 = Task.of("Sign up to be able to add your own tasks", new User());
+            List<Category> first = List.of(new Category("home"), new Category("friends"));
+            List<Category> second = List.of(new Category("work"), new Category("other"));
+            Task task1 = Task.of("This is an example of a task", first);
+            Task task2 = Task.of("Sign up to be able to add your own tasks", second);
             tasks.add(task1);
             tasks.add(task2);
         }
         model.addAttribute("tasks", tasks);
+        List<Category> categories = categoryService.getAllCategories();
+        model.addAttribute("categories", categories);
+        model.addAttribute("task", new Task());
         return "index";
     }
 
     @PostMapping("/add")
-    public String add(HttpServletRequest req, HttpSession session) {
-        String description = req.getParameter("newTask");
+    public String add(HttpSession session, @ModelAttribute Task task) {
         User user = (User) session.getAttribute("user");
-        Task task = Task.of(description, user);
+        task.setUser(user);
+        task.setCreated(LocalDateTime.now());
         taskService.add(task);
         return "redirect:/index";
     }
@@ -59,6 +68,9 @@ public class TaskController {
         addUserToModel(model, session);
         Task task = taskService.findById(id);
         model.addAttribute("task", task);
+        List<Category> categories = categoryService.getAllCategories();
+        model.addAttribute("categories", categories);
+        model.addAttribute("newTask", new Task());
         return "task";
     }
 
@@ -78,16 +90,14 @@ public class TaskController {
     }
 
     @PostMapping("/edit")
-    public String edit(HttpServletRequest req, Model model) {
-        User user = (User) model.getAttribute("user");
-        int id = Integer.parseInt(req.getParameter("id"));
-        String description = req.getParameter("description");
-        boolean done = "on".equals(req.getParameter("done"));
+    public String edit(HttpSession session, HttpServletRequest req, @ModelAttribute Task task) {
+        User user = (User) session.getAttribute("user");
         LocalDateTime created = "on".equals(req.getParameter("updatecreated"))
-                ? LocalDateTime.now() : LocalDateTime.parse(req.getParameter("created"));
-        Task newTask = new Task(description, created, done, user);
-        taskService.replace(id, newTask);
-        return String.format("redirect:/task/%d", id);
+                ? LocalDateTime.now() : LocalDateTime.parse(req.getParameter("created1"));
+        task.setCreated(created);
+        task.setUser(user);
+        taskService.replace(task);
+        return String.format("redirect:/task/%d", task.getId());
     }
 
     private void addUserToModel(Model model, HttpSession session) {
@@ -98,4 +108,5 @@ public class TaskController {
         }
         model.addAttribute("user", user);
     }
+
 }
