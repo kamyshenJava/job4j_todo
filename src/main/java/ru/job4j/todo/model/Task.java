@@ -1,8 +1,8 @@
 package ru.job4j.todo.model;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -15,7 +15,9 @@ public class Task {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String description;
-    private LocalDateTime created;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date created;
     private boolean done;
 
     @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -28,7 +30,7 @@ public class Task {
     public Task() {
     }
 
-    public Task(String description, LocalDateTime created, boolean done, User user) {
+    public Task(String description, Date created, boolean done, User user) {
         this.description = description;
         this.created = created;
         this.done = done;
@@ -38,7 +40,7 @@ public class Task {
     public static Task of(String description, List<Category> categories) {
         Task task = new Task();
         task.description = description;
-        task.created = LocalDateTime.now();
+        task.created = new Date(System.currentTimeMillis());
         task.done = false;
         task.categories = categories;
         return task;
@@ -60,11 +62,11 @@ public class Task {
         this.description = description;
     }
 
-    public LocalDateTime getCreated() {
+    public Date getCreated() {
         return this.created;
     }
 
-    public void setCreated(LocalDateTime created) {
+    public void setCreated(Date created) {
         this.created = created;
     }
 

@@ -51,7 +51,7 @@
                    th:text="${task.getDescription()}"></a>
                 <a th:if="${user.name == 'guest'}" th:text="${task.getDescription()}"></a>
             </th>
-            <td class="col-md-3" th:text="${#temporals.format(task.getCreated(), 'dd MMM yyyy HH-mm')}"></td>
+            <td class="col-md-3" th:text="${#dates.format(task.getCreated(), 'dd MMM yyyy HH-mm')}"></td>
             <td class="col-md-3" th:if="${task.isDone()}">Done!</td>
             <td class="col-md-3" th:unless="${task.isDone()}">New</td>
             <td class="col-md-3" th:text="${#strings.substring(task.categories, 1, #strings.length(task.categories)-1)}"></td>

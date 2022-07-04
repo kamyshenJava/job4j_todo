@@ -11,9 +11,12 @@ import ru.job4j.todo.service.TaskService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
-import java.time.LocalDateTime;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 @Controller
 public class TaskController {
@@ -58,7 +61,7 @@ public class TaskController {
     public String add(HttpSession session, @ModelAttribute Task task) {
         User user = (User) session.getAttribute("user");
         task.setUser(user);
-        task.setCreated(LocalDateTime.now());
+        task.setCreated(new Date(System.currentTimeMillis()));
         taskService.add(task);
         return "redirect:/index";
     }
@@ -90,10 +93,11 @@ public class TaskController {
     }
 
     @PostMapping("/edit")
-    public String edit(HttpSession session, HttpServletRequest req, @ModelAttribute Task task) {
+    public String edit(HttpSession session, HttpServletRequest req, @ModelAttribute Task task) throws ParseException {
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS", Locale.ENGLISH);
         User user = (User) session.getAttribute("user");
-        LocalDateTime created = "on".equals(req.getParameter("updatecreated"))
-                ? LocalDateTime.now() : LocalDateTime.parse(req.getParameter("created1"));
+        Date created = "on".equals(req.getParameter("updatecreated"))
+                ? new Date(System.currentTimeMillis()) : formatter.parse(req.getParameter("created1"));
         task.setCreated(created);
         task.setUser(user);
         taskService.replace(task);

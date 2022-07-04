@@ -15,7 +15,7 @@
         <div class="card text-center mx-auto w-75">
             <div class="card-body">
                 <h5 class="card-title" th:text="${task.description}">Description</h5>
-                <p class="card-text" th:text="${#temporals.format(task.created, 'dd MMM yyyy HH-mm')}">Created</p>
+                <p class="card-text" th:text="${#dates.format(task.created, 'dd MMM yyyy HH-mm')}">Created</p>
                 <p class="card-text" th:if="${task.done}">Done!</p>
                 <p class="card-text" th:unless="${task.done}">New</p>
                 <p class="card-text" th:text="${#strings.substring(task.categories, 1, #strings.length(task.categories)-1)}"></p>
