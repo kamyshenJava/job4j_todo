@@ -68,6 +68,9 @@ public class TaskController {
 
     @GetMapping("/task/{id}")
     public String task(Model model, HttpSession session, @PathVariable("id") int id) {
+        if (session.getAttribute("user") == null) {
+            return "redirect:/index";
+        }
         addUserToModel(model, session);
         Task task = taskService.findById(id);
         model.addAttribute("task", task);
